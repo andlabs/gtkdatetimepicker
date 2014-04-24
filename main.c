@@ -31,16 +31,17 @@ int main(void)
 	GtkWidget *sspin;
 
 	timelayout = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-#define PACKTIME(x) gtk_box_pack_end((GtkBox *) timelayout, x, FALSE, FALSE, 0);			// no expand or fill
-	hspin = gtk_spin_button_new(NULL, 1, 0);
+#define PACKTIME(x) gtk_box_pack_start((GtkBox *) timelayout, x, FALSE, FALSE, 0);			// no expand or fill
+	hspin = gtk_spin_button_new_with_range(0, 23, 1);
+	gtk_spin_button_set_wrap((GtkSpinButton *) hspin, TRUE);
 	PACKTIME(hspin);
 	colon1 = gtk_label_new(":");
 	PACKTIME(colon1);
-	mspin = gtk_spin_button_new(NULL, 1, 0);
+	mspin = gtk_spin_button_new_with_range(0, 59, 1);
 	PACKTIME(mspin);
 	colon2 = gtk_label_new(":");
 	PACKTIME(colon2);
-	sspin = gtk_spin_button_new(NULL, 1, 0);
+	sspin = gtk_spin_button_new_with_range(0, 59, 1);
 	PACKTIME(sspin);
 
 	gtk_box_pack_start((GtkBox *) popuplayout, timelayout,

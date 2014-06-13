@@ -69,6 +69,18 @@ static void formatDate(DateTimePicker *d)
 	gtk_entry_set_text(GTK_ENTRY(d->entry), d->str);
 }
 
+#define GOOD(d) (((d)->curpos >= 0) && ((d)->curpos < (d)->npos))
+
+static void fixup(DateTimePicker *d)
+{
+	if (d->curpos < 0)
+		d->curpos = 0;
+	if (d->curpos == d->npos)
+		do
+			d->curpos--;
+		while (d->pos[d->curpos] == continuator);
+}
+
 static void nearest(DateTimePicker *d, gint direction)
 {
 	if (direction < 0)
@@ -77,10 +89,9 @@ static void nearest(DateTimePicker *d, gint direction)
 		direction = 1;
 	else
 		g_error("direction == 0 in DateTimePicker.nearest()");
-	while (d->curpos < d->npos && d->pos[d->curpos] < FIRSTSTOP)
+	while (GOOD(d) && d->pos[d->curpos] < FIRSTSTOP)
 		d->curpos += direction;
-	if (d->curpos == d->npos)
-		d->curpos--;
+	fixup(d);
 }
 
 static void adjust(DateTimePicker *d)
@@ -102,6 +113,7 @@ static void move_cursor(GtkEntry *entry, GtkMovementStep step, gint count, gbool
 	if (selects)			// allow arbitrary selection
 		return;
 	g_signal_stop_emission_by_name(entry, "move-cursor");
+printf("%d\n", step);
 	switch (step) {		// filter out vertical movements
 	case GTK_MOVEMENT_DISPLAY_LINES:
 printf("LINES > ");
@@ -110,8 +122,6 @@ printf("PARAGRAPHS > ");
 	case GTK_MOVEMENT_PAGES:
 printf("PAGES\n");
 		return;
-	}
-	switch (step) {
 	case GTK_MOVEMENT_LOGICAL_POSITIONS:
 	case GTK_MOVEMENT_VISUAL_POSITIONS:
 	case GTK_MOVEMENT_WORDS:
@@ -133,8 +143,7 @@ printf("PAGES\n");
 	default:
 		g_error("unknown GtkMovementType %d\n", step);
 	}
-	if (d->curpos == d->npos)
-		d->curpos--;
+	fixup(d);
 	adjust(d);
 }
 
